@@ -1,0 +1,139 @@
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+
+using namespace std;
+
+// Функция для минимизации
+double f(double x1, double x2) {
+    return 3 * x1 * x1 + 2 * x2 * x1 + x2 * x2 - 8 * x1 - 12 * x2;
+}
+
+// Одномерная минимизация: необходимое и достаточное условие экстремума (производная = 0)
+double line_search(double y1, double y2, double d1, double d2) {
+    double x1 = y1, x2 = y2;
+
+    // Производные в точке y
+    double fx = 6 * x1 + 2 * x2 - 8;
+    double fy = 2 * x1 + 2 * x2 - 12;
+
+    // Вторые производные (константы)
+    double fxx = 6, fyy = 2, fxy = 2;
+
+    double a = fxx * d1 * d1 + 2 * fxy * d1 * d2 + fyy * d2 * d2;
+    double b = fx * d1 + fy * d2;
+
+    if (a > 0) {
+        return -b / (2 * a);
+    }
+    return 0;
+}
+
+int main() {
+    // Для русских символов
+    setlocale(LC_ALL, "Russian");
+
+    // Шаг 1: Задать начальную точку
+    double x0[2] = { 1, 2 };  // x^k
+    double epsilon = 0.1;
+
+    // Начальные направления: d0, d1, d2 (d0 = d2 изначально)
+    double d0[2] = { 0, 1 };  // d0 = d_n = d2
+    double d1[2] = { 1, 0 };
+    double d2[2] = { 0, 1 };
+
+    int k = 0;
+
+    cout << "Начальная точка: (" << x0[0] << ", " << x0[1] << ")" << endl;
+    cout << "Начальное значение функции: " << f(x0[0], x0[1]) << endl;
+    cout << "----------------------------------------" << endl;
+
+    int iteration = 0;
+    bool finished = false;
+
+    while (!finished) {
+        iteration++;
+        cout << "\n=== Итерация " << iteration << " ===" << endl;
+
+        // y0 = x^k
+        double y0[2] = { x0[0], x0[1] };
+        double y1[2], y2[2], y3[2];
+
+        // Поиск по d0 (первое направление)
+        cout << "Поиск по d0 = (" << d0[0] << ", " << d0[1] << ")" << endl;
+        double t0 = line_search(y0[0], y0[1], d0[0], d0[1]);
+        y1[0] = y0[0] + t0 * d0[0];
+        y1[1] = y0[1] + t0 * d0[1];
+        cout << "  t0 = " << t0 << ", y1 = (" << y1[0] << ", " << y1[1] << ")" << endl;
+        cout << "  f(y1) = " << f(y1[0], y1[1]) << endl;
+
+        // Поиск по d1 (второе направление)
+        cout << "Поиск по d1 = (" << d1[0] << ", " << d1[1] << ")" << endl;
+        double t1 = line_search(y1[0], y1[1], d1[0], d1[1]);
+        y2[0] = y1[0] + t1 * d1[0];
+        y2[1] = y1[1] + t1 * d1[1];
+        cout << "  t1 = " << t1 << ", y2 = (" << y2[0] << ", " << y2[1] << ")" << endl;
+        cout << "  f(y2) = " << f(y2[0], y2[1]) << endl;
+
+        // Проверка: если y2 == y0, то завершить i=1=n-1
+        if (fabs(y2[0] - y0[0]) < 0 && fabs(y2[1] - y0[1]) < 0) {
+            cout << "\nМинимум найден: x* = (" << y2[0] << ", " << y2[1] << ")" << endl;
+            cout << "f(x*) = " << f(y2[0], y2[1]) << endl;
+            break;
+        }
+
+        // Поиск по d2 (третье направление)
+        cout << "Поиск по d2 = (" << d2[0] << ", " << d2[1] << ")" << endl;
+        double t2 = line_search(y2[0], y2[1], d2[0], d2[1]);
+        y3[0] = y2[0] + t2 * d2[0];
+        y3[1] = y2[1] + t2 * d2[1];
+        cout << "  t2 = " << t2 << ", y3 = (" << y3[0] << ", " << y3[1] << ")" << endl;
+        cout << "  f(y3) = " << f(y3[0], y3[1]) << endl;
+
+        // Проверка: если y3 == y1, то завершить 2=2
+        if (fabs(y3[0] - y1[0]) < 1e-8 && fabs(y3[1] - y1[1]) < 1e-8) {
+            cout << "\nМинимум найден: x* = (" << y3[0] << ", " << y3[1] << ")" << endl;
+            cout << "f(x*) = " << f(y3[0], y3[1]) << endl;
+            break;
+        }
+
+        // Шаг 4: x^{k+1} = y3
+        double new_x0[2] = { y3[0], y3[1] };
+
+        // Проверка условия окончания
+        double delta = sqrt(pow(new_x0[0] - x0[0], 2) + pow(new_x0[1] - x0[1], 2));
+        cout << "\n||x^{k+1} - x^k|| = " << delta << endl;
+
+        if (delta < epsilon) {
+            cout << "Условие окончания выполнено" << endl;
+            cout << "\nМинимум найден: x* = (" << new_x0[0] << ", " << new_x0[1] << ")" << endl;
+            cout << "f(x*) = " << f(new_x0[0], new_x0[1]) << endl;
+            break;
+        }
+
+        // Строим новое сопряжённое направление: d_new = y3 - y1
+        double d_new[2] = { y3[0] - y1[0], y3[1] - y1[1] };
+        cout << "Новое направление d_new = (" << d_new[0] << ", " << d_new[1] << ")" << endl;
+
+        // Обновляем направления: d0 = d_new, d1 = d1, d2 = d2
+        // (исключаем старое d0)
+        d0[0] = d_new[0];
+        d0[1] = d_new[1];
+
+        // Обновляем x0
+        x0[0] = new_x0[0];
+        x0[1] = new_x0[1];
+
+        cout << "Новая точка x^" << k + 1 << " = (" << x0[0] << ", " << x0[1] << ")" << endl;
+        cout << "Значение функции: " << f(x0[0], x0[1]) << endl;
+
+        k++;
+
+        if (iteration > 50) {
+            cout << "\nПревышено максимальное число итераций" << endl;
+            break;
+        }
+    }
+
+    return 0;
+}
