@@ -1,0 +1,98 @@
+#include <iostream>
+#include <cmath>
+#include <clocale>   // для русских символов
+
+using namespace std;
+
+// Функция f(x1, x2)
+double f(double x1, double x2) {
+    return 3 * x1 * x1 + 2 * x2 * x1 + x2 * x2 - 8 * x1 - 12 * x2;
+}
+
+// Градиент: g1 = df/dx1, g2 = df/dx2
+void gradient(double x1, double x2, double& g1, double& g2) {
+    g1 = 6 * x1 + 2 * x2 - 8;
+    g2 = 2 * x1 + 2 * x2 - 12;
+}
+
+// Норма градиента
+double grad_norm(double g1, double g2) {
+    return sqrt(g1 * g1 + g2 * g2);
+}
+
+// Аналитический оптимальный шаг t*
+double optimal_step(double x1, double x2, double g1, double g2) {
+    // Числитель
+    double numerator = g1 * g1 + g2 * g2;
+
+    // Знаменатель: 2*(3*g1^2 + 2*g1*g2 + g2^2)
+    double denominator = 2 * (3 * g1 * g1 + 2 * g1 * g2 + g2 * g2);
+
+    if (fabs(denominator) < 0) return 0.0;
+    return numerator / denominator;
+}
+
+int main() {
+    setlocale(LC_ALL, "Russian");
+
+    // Шаг 1
+    double x1 = 1.0, x2 = 2.0;      // x^0
+    double eps1 = 0.1;               // ε₁
+    double eps2 = 0.15;              // ε₂
+    int M = 100;                     // предельное число итераций
+    int k = 0;                       // Шаг 2
+
+    cout << "Начальная точка: x1 = " << x1 << ", x2 = " << x2 << endl;
+    cout << "ε₁ = " << eps1 << ", ε₂ = " << eps2 << "\n\n";
+
+    while (k < M) {
+        // Шаг 3
+        double g1, g2;
+        gradient(x1, x2, g1, g2);
+        double norm_g = grad_norm(g1, g2);
+
+        cout << "Итерация " << k << ": x1 = " << x1 << ", x2 = " << x2
+            << ", ||∇f|| = " << norm_g << endl;
+
+        // Шаг 4
+        if (norm_g < eps1) {
+            cout << "\nКритерий по градиенту выполнен.\n";
+            break;
+        }
+
+        // Шаг 5
+        if (k >= M) {
+            cout << "\nДостигнуто M итераций.\n";
+            break;
+        }
+
+        // Шаг 6 — аналитический t*
+        double t_star = optimal_step(x1, x2, g1, g2);
+
+        // Шаг 7
+        double x1_new = x1 - t_star * g1;
+        double x2_new = x2 - t_star * g2;
+
+        // Шаг 8
+        double delta_x = sqrt((x1_new - x1) * (x1_new - x1) + (x2_new - x2) * (x2_new - x2));
+        double delta_f = fabs(f(x1_new, x2_new) - f(x1, x2));
+
+        cout << "   t* = " << t_star << ", ||delta x|| = " << delta_x << ", |delta f| = " << delta_f << endl;
+
+        if (delta_x < eps2 && delta_f < eps2) {
+            cout << "\nКритерии по delta x и delta f выполнены.\n";
+            x1 = x1_new;
+            x2 = x2_new;
+            break;
+        }
+
+        x1 = x1_new;
+        x2 = x2_new;
+        k++;
+    }
+
+    cout << "\nРезультат: x1 ≈ " << x1 << ", x2 ≈ " << x2 << endl;
+    cout << "f(x1, x2) = " << f(x1, x2) << endl;
+
+    return 0;
+}
