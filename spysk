@@ -1,6 +1,6 @@
-#include <iostream>
+#include <iostream> //184
 #include <cmath>
-#include <clocale>   // для русских символов
+#include <clocale>   // Для русских символов
 
 using namespace std;
 
@@ -9,7 +9,7 @@ double f(double x1, double x2) {
     return 3 * x1 * x1 + 2 * x2 * x1 + x2 * x2 - 8 * x1 - 12 * x2;
 }
 
-// Градиент: g1 = df/dx1, g2 = df/dx2
+// Градиент
 void gradient(double x1, double x2, double& g1, double& g2) {
     g1 = 6 * x1 + 2 * x2 - 8;
     g2 = 2 * x1 + 2 * x2 - 12;
@@ -20,7 +20,7 @@ double grad_norm(double g1, double g2) {
     return sqrt(g1 * g1 + g2 * g2);
 }
 
-// Аналитический оптимальный шаг t*
+// Для 6 шага
 double optimal_step(double x1, double x2, double g1, double g2) {
     // Числитель
     double numerator = g1 * g1 + g2 * g2;
@@ -36,14 +36,14 @@ int main() {
     setlocale(LC_ALL, "Russian");
 
     // Шаг 1
-    double x1 = 1.0, x2 = 2.0;      // x^0
-    double eps1 = 0.1;               // ε₁
-    double eps2 = 0.15;              // ε₂
-    int M = 100;                     // предельное число итераций
-    int k = 0;                       // Шаг 2
-
+    double x1 = 1.0, x2 = 2.0;      
+    double eps1 = 0.1;               
+    double eps2 = 0.15;              
+    int M = 10;   
+    //Шаг 2
+    int k = 0;                       
     cout << "Начальная точка: x1 = " << x1 << ", x2 = " << x2 << endl;
-    cout << "ε₁ = " << eps1 << ", ε₂ = " << eps2 << "\n\n";
+    cout << "e1 = " << eps1 << ", e2 = " << eps2 << "\n\n";
 
     while (k < M) {
         // Шаг 3
@@ -52,21 +52,21 @@ int main() {
         double norm_g = grad_norm(g1, g2);
 
         cout << "Итерация " << k << ": x1 = " << x1 << ", x2 = " << x2
-            << ", ||∇f|| = " << norm_g << endl;
+            << ", ||grad f|| = " << norm_g << endl;
 
         // Шаг 4
         if (norm_g < eps1) {
-            cout << "\nКритерий по градиенту выполнен.\n";
+        cout <<"Результат: x1 = " << x1 << ", x2 = " << x2 << endl;
             break;
         }
 
         // Шаг 5
         if (k >= M) {
-            cout << "\nДостигнуто M итераций.\n";
+            cout << "\nДостигнуто 10 итераций.\n";
             break;
         }
 
-        // Шаг 6 — аналитический t*
+        // Шаг 6 
         double t_star = optimal_step(x1, x2, g1, g2);
 
         // Шаг 7
@@ -80,7 +80,7 @@ int main() {
         cout << "   t* = " << t_star << ", ||delta x|| = " << delta_x << ", |delta f| = " << delta_f << endl;
 
         if (delta_x < eps2 && delta_f < eps2) {
-            cout << "\nКритерии по delta x и delta f выполнены.\n";
+            cout << "\nОба условия выполнены\n";
             x1 = x1_new;
             x2 = x2_new;
             break;
@@ -91,7 +91,7 @@ int main() {
         k++;
     }
 
-    cout << "\nРезультат: x1 ≈ " << x1 << ", x2 ≈ " << x2 << endl;
+    cout << "\nРезультат: x1 = " << x1 << ", x2 = " << x2 << endl;
     cout << "f(x1, x2) = " << f(x1, x2) << endl;
 
     return 0;
