@@ -1,4 +1,4 @@
-#include <iostream>//161
+#include <iostream>
 #include <cmath>
 #include <iomanip>
 
@@ -30,9 +30,7 @@ double line_search(double y1, double y2, double d1, double d2) {
 }
 
 bool check_rank(double d1[2], double d2[2]) {
-    // Определитель матрицы, составленной из векторов
     double det = d1[0] * d2[1] - d1[1] * d2[0];
-    // Если определитель не равен нулю (с учётом погрешности), то ранг = 2
     return fabs(det) > 1e-8;
 }
 
@@ -40,7 +38,7 @@ int main() {
     setlocale(LC_ALL, "Russian");
 
     // Шаг 1
-    double xk[2] = { 1, 2 };       
+    double xk[2] = { 1, 2 };
     double epsilon = 0.1;
 
     double d0[2] = { 1, 0 };
@@ -48,8 +46,8 @@ int main() {
     double d2[2] = { 1, 0 };
 
     int n = 2;
-    int i = 0;        
-    int k = 0;        
+    int i = 0;
+    int k = 0;
     int iteration = 0;
 
     double y0[2] = { xk[0], xk[1] };
@@ -122,14 +120,20 @@ int main() {
         d1[0] = d2[0]; d1[1] = d2[1];
         d2[0] = d_new[0]; d2[1] = d_new[1];
 
-        // Обновляем xk и y0 для следующей итерации
+        if (check_rank(d1, d2)) {
+            cout << "Система направлений линейно независима (ранг = 2)" << endl;
+        }
+        else {
+            cout << "Cистема направлений линейно зависима (ранг < 2)" << endl;
+        }
+
         xk[0] = x_next[0];
         xk[1] = x_next[1];
         y0[0] = xk[0];
         y0[1] = xk[1];
 
         k++;
-        i = 0;   // сбрасываем индекс
+        i = 0;
 
         if (iteration > 10) {
             cout << "\nПревышено максимальное число итераций" << endl;
