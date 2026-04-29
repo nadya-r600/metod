@@ -1,6 +1,6 @@
-#include <iostream> //184
+#include <iostream> 
 #include <cmath>
-#include <clocale>   // Для русских символов
+#include <clocale>
 
 using namespace std;
 
@@ -20,28 +20,23 @@ double grad_norm(double g1, double g2) {
     return sqrt(g1 * g1 + g2 * g2);
 }
 
-// Для 6 шага
+/// Вычисление шага t* аналитически для f(x - t*grad)
 double optimal_step(double x1, double x2, double g1, double g2) {
-    // Числитель
-    double numerator = g1 * g1 + g2 * g2;
-
-    // Знаменатель: 2*(3*g1^2 + 2*g1*g2 + g2^2)
-    double denominator = 2 * (3 * g1 * g1 + 2 * g1 * g2 + g2 * g2);
-
-    if (fabs(denominator) < 0) return 0.0;
-    return numerator / denominator;
+    double A = g1 * g1 + g2 * g2;
+    double B = 6 * g1 *g1 + 4 * g1 * g2 + 2* g2 * g2;
+    return A / (B);
 }
 
 int main() {
     setlocale(LC_ALL, "Russian");
 
     // Шаг 1
-    double x1 = 1.0, x2 = 2.0;      
-    double eps1 = 0.1;               
-    double eps2 = 0.15;              
-    int M = 10;   
+    double x1 = 1.0, x2 = 2.0;
+    double eps1 = 0.1;
+    double eps2 = 0.15;
+    int M = 10;
     //Шаг 2
-    int k = 0;                       
+    int k = 0;
     cout << "Начальная точка: x1 = " << x1 << ", x2 = " << x2 << endl;
     cout << "e1 = " << eps1 << ", e2 = " << eps2 << "\n\n";
 
@@ -56,7 +51,7 @@ int main() {
 
         // Шаг 4
         if (norm_g < eps1) {
-        cout <<"Результат: x1 = " << x1 << ", x2 = " << x2 << endl;
+            cout << "Результат: x1 = " << x1 << ", x2 = " << x2 << endl;
             break;
         }
 
