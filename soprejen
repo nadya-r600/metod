@@ -29,6 +29,13 @@ double line_search(double y1, double y2, double d1, double d2) {
     return 0;
 }
 
+bool check_rank(double d1[2], double d2[2]) {
+    // Определитель матрицы, составленной из векторов
+    double det = d1[0] * d2[1] - d1[1] * d2[0];
+    // Если определитель не равен нулю (с учётом погрешности), то ранг = 2
+    return fabs(det) > 1e-8;
+}
+
 int main() {
     setlocale(LC_ALL, "Russian");
 
